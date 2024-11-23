@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giphy Search Engine</title>
+    <link rel="stylesheet" href="projectstyle2.css">
+</head>
+<body>
+
+    <h1 id="pageTitle">Giphy Search</h1>
+
+    <input type="text" id="searchInput">
+    <button onclick="handleClickGet()">Search</button> 
+
+    <button id="prevButton" onclick="navigate(-1)" disabled>Previous</button>
+    <button id="nextButton" onclick="navigate(1)" disabled>Next</button>
+     
+
+
+    <!-- Output Area for GIFs -->
+    <div id="outputArea"></div> 
+
+    
+    <script>
+        let currentOffset = 0; // pagination ofsset starts at 0
+        let currentSearchTerm = ''; // Keeps track of the search term to ensure the right query is used
+
+        function handleClickGet() { // triggered by search button, 
+            let searchTerm = document.getElementById("searchInput").value;  //grabs value from search Input
+           
+            
+            currentSearchTerm = searchTerm; //current search term set to user's search
+            currentOffset = 0; 
+
+            searchGIFs(searchTerm, currentOffset); //searches for Gifs with given search and offset
+        }
+
+        function searchGIFs(searchTerm, offset) {   // Fetch GIFs based on the search term and offset
+            let apiKey = '3m0F7AGt9wHkg15MSg89kuPO084eytYG';  // authenticates requests to Giphy API
+            let url = `https://api.giphy.com/v1/gifs/search?q=${searchTerm}&api_key=${apiKey}&limit=10&offset=${offset}`; //url for API request
+            let outputArea = document.getElementById("outputArea"); //gets the reference to the div where gifs will be displayed
+
+         
+
+            fetch(url) // fetch sends request to Giphy API
+                .then(response => response.json())  //converts response to JSON format 
+                .then(data => {    // response data processed
+                    if (data.data.length === 0) {  // if no gifs found next and previous buttons disabled
+                        outputArea.innerHTML = '<p>No GIFs found for your search!</p>';
+                        document.getElementById('prevButton').disabled = true;
+                        document.getElementById('nextButton').disabled = true;
+                    } else {
+                        // Clear the previous GIFs
+                        outputArea.innerHTML = '';
+
+                        // Display the new set of GIFs
+                        data.data.forEach(gif => {
+                            let img = document.createElement('img');
+                            img.src = gif.images.fixed_height.url;  // URL of the gif image
+                            outputArea.appendChild(img);
+                        });
+
+                        // Enable or disable the navigation buttons based on the data
+                        document.getElementById('prevButton').disabled = currentOffset === 0;
+                        document.getElementById('nextButton').disabled = data.pagination.total_count <= currentOffset + 10;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching GIFs:', error);
+                    outputArea.innerHTML = '<p>Sorry, there was an error fetching GIFs.</p>';
+                    //if any errors, display message 
+                });
+        }
+
+        function navigate(direction) { // called when user clicks 
+        
+            currentOffset += direction * 10;  // Each page contains 10 GIFs
+
+            // Call the searchGIFs function with the new offset to update the display
+            searchGIFs(currentSearchTerm, currentOffset);
+        }
+    </script>
+</body>
+</html>

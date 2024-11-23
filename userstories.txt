@@ -1,0 +1,7 @@
+
+
+As a giphy search user, I want to search for kitten gifs so that I can look at pictures of kittens.
+
+As a giphy searh user, I want to use the next button to toggle through multiple pages of kitten gifs.
+
+As a giphy search user, I want to to search for pickle gifs to look at pictures of pickles.
